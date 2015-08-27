@@ -76,16 +76,30 @@ function encrypt_backup {
 
 
 if [ "$1" = 'backup' ]; then
-    echo "[Run] Starting backup"
-    date
-
-    (
-        flock -n 9 || exit 1
-        time /pg_backup_rotated.sh 2>&1 | tee -a /data/backup.log
-        encrypt_backup 2>&1 | tee -a /data/backup.log
-    ) 9>/data/lockfile
-
-    exit $?
+	while true; 
+	do
+	    echo "[Run] Starting backup"
+	    date
+	
+	    (
+	        flock -n 9 || exit 1
+	        time /pg_backup_rotated.sh 2>&1 | tee -a /data/backup.log
+	        encrypt_backup 2>&1 | tee -a /data/backup.log
+	    ) 9>/data/lockfile
+	
+		if [ "$2" = 'daily' ]; then
+			echo "Rerun in 24 hours"
+			sleep 86400
+		else
+			# For testing purposes
+			if [ "$2" = 'minute' ]; then
+				echo "Rerun in 1 minute"
+				sleep 60
+			else
+				exit $?
+			fi
+		fi
+		done
 fi
 
 echo "[RUN]: Builtin command not provided [backup]"
