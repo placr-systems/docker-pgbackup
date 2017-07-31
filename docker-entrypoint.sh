@@ -99,7 +99,7 @@ if [ "$1" = 'backup' ]; then
 				exit $?
 			fi
 		fi
-		done
+	done
 fi
 
 echo "[RUN]: Builtin command not provided [backup]"
